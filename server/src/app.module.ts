@@ -1,10 +1,28 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
+import { UserModule } from './user/user.module';
+
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal:true,
+      envFilePath:[".local.env"]
+    }),
+    MongooseModule.forRootAsync({
+      imports:[ConfigModule],
+      useFactory:(configService:ConfigService)=>({uri:configService.get("MONGO_URL")}),
+      inject:[ConfigService]
+    }),
+    UserModule
+  ],
+  controllers: [],
+  providers: [],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(){
+    console.log("Server started at 5000...");
+    
+  }
+}
